@@ -1,0 +1,49 @@
+diff --git a/ggml/src/ggml-cuda/copy-engine.cu b/ggml/src/ggml-cuda/copy-engine.cu
+index a938521..8e2160a 100644
+--- a/ggml/src/ggml-cuda/copy-engine.cu
++++ b/ggml/src/ggml-cuda/copy-engine.cu
+@@ -6,6 +6,11 @@
+ #include <vector>
+ 
+ #if defined(GGML_USE_HIP)
++#define cudaEventQuery    hipEventQuery
++#define cudaErrorNotReady hipErrorNotReady
++#endif
++
++#if defined(GGML_USE_HIP) && !defined(_WIN32)
+ #include <hsa/hsa.h>
+ #include <hsa/hsa_ext_amd.h>
+ 
+@@ -169,7 +174,7 @@ static bool ggml_cuda_copy_engine_done(ggml_backend_copy_engine_t ce, int i) {
+     return true;
+ }
+ 
+-#endif // defined(GGML_USE_HIP)
++#endif // defined(GGML_USE_HIP) && !defined(_WIN32)
+ 
+ static void * ggml_cuda_copy_engine_alloc_shared(ggml_backend_copy_engine_t ce, size_t size) {
+     ggml_cuda_set_device(ce->device);
+diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
+index 50baebe..4edf4b9 100644
+--- a/ggml/src/ggml-hip/CMakeLists.txt
++++ b/ggml/src/ggml-hip/CMakeLists.txt
+@@ -46,7 +46,9 @@ endif()
+ find_package(hip     REQUIRED)
+ find_package(hipblas REQUIRED)
+ find_package(rocblas REQUIRED)
+-find_package(hsa-runtime64 REQUIRED) # copy engine (copy-engine.cu)
++if (NOT WIN32)
++    find_package(hsa-runtime64 REQUIRED) # copy engine (copy-engine.cu)
++endif()
+ 
+ if (GGML_HIP_RCCL)
+     find_package(rccl REQUIRED)
+@@ -142,4 +144,7 @@ if (GGML_HIP_RCCL)
+     target_link_libraries(ggml-hip PRIVATE ggml-base roc::rccl)
+ endif()
+ 
+-target_link_libraries(ggml-hip PRIVATE ggml-base hip::host roc::rocblas roc::hipblas hsa-runtime64::hsa-runtime64)
++target_link_libraries(ggml-hip PRIVATE ggml-base hip::host roc::rocblas roc::hipblas)
++if (NOT WIN32)
++    target_link_libraries(ggml-hip PRIVATE hsa-runtime64::hsa-runtime64)
++endif()

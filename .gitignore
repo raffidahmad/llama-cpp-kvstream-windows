@@ -1,0 +1,5 @@
+.venv-rocm/
+src/
+dist/
+*.log
+*.err

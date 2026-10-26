@@ -1,0 +1,72 @@
+name: Test results (any GPU)
+description: Share what you got on your hardware, working or not. Failures are just as useful.
+title: "[results] <GPU> / <model>"
+labels: ["test-results"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing. Steps: start the server with `run-example.ps1`, then run `bench.ps1 -Port <port>` and paste its output below.
+        See "Contribute test results" in the README.
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Did it work?
+      options:
+        - Works (numbers below)
+        - Builds but crashes or gives wrong output
+        - Does not build
+        - Server starts but is slow or falls back to CPU
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU, VRAM, gfx target
+      placeholder: "RX 6700 XT, 12 GB, gfx1031"
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: RAM, Windows version, Adrenalin driver version
+      placeholder: "32 GB DDR4, Windows 11 24H2, Adrenalin 25.x.x"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you run it?
+      options:
+        - Prebuilt release zip
+        - Built from source with build.ps1
+        - Built from source, changed something (say what below)
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model and quant
+      placeholder: "Qwen3.8-27B IQ4_XS, 12.6 GiB, with MTP head"
+    validations:
+      required: true
+  - type: input
+    id: flags
+    attributes:
+      label: Context size and changes to run-example.ps1 flags
+      placeholder: "ctx 131072, -ResidentMiB 200 -ResidentDecodeMiB 1200"
+    validations:
+      required: true
+  - type: textarea
+    id: results
+    attributes:
+      label: bench.ps1 output
+      description: Paste the markdown block it prints. If it did not run, paste the server log tail instead.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Crashes, VRAM used (Task Manager), what you changed to make it work, comparison with another backend (Vulkan etc.).
