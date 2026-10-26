@@ -42,4 +42,11 @@ if (-not $NoSpec) {     # the speculative settings are the biggest speed lever (
         '--spec-draft-sampling', 'probabilistic'
 }
 if ($ApiKey) { $srvArgs += '--api-key', $ApiKey }
-& "$Bin\llama-server.exe" @srvArgs
+$Exe = "$Bin\llama-server.exe"
+if (-not (Test-Path $Exe)) { Write-Error "llama-server.exe not found at $Exe (use -Bin to point at its folder)"; exit 1 }
+if (-not (Test-Path $Model)) { Write-Error "Model file not found: $Model"; exit 1 }
+& $Exe @srvArgs
+if ($LASTEXITCODE -ne 0) {
+    Write-Error ("llama-server exited with code 0x{0:X} ({0}). 0xC0000135/0xC0000139 = missing or incompatible DLL (check -Bin / -Venv). To check the device name: & `"$Exe`" --list-devices" -f $LASTEXITCODE)
+    exit $LASTEXITCODE
+}
