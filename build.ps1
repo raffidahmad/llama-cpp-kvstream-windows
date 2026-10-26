@@ -57,10 +57,12 @@ $env:HIP_PATH = $Devel
 # 4. Configure + build
 $B = "$Src\build-rocm"
 $llvm = "$Devel\lib\llvm\bin"
+# CPU code uses a portable AVX2 baseline, not -march=native (a native build crashes with 0xC000001D on other CPUs)
 Run cmake -S $Src -B $B -G Ninja -DCMAKE_BUILD_TYPE=Release `
     "-DCMAKE_C_COMPILER=$llvm\clang.exe" "-DCMAKE_CXX_COMPILER=$llvm\clang++.exe" `
     "-DCMAKE_PREFIX_PATH=$Devel\lib\cmake" `
     -DGGML_HIP=ON -DGGML_HIP_GRAPHS=ON -DGGML_HIP_NO_VMM=ON `
+    -DGGML_NATIVE=OFF -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON -DGGML_BMI2=ON `
     "-DGPU_TARGETS=$Gpu" "-DAMDGPU_TARGETS=$Gpu" `
     -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF
 Run cmake --build $B --target llama-server llama-bench
